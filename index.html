@@ -2,28 +2,29 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Test Start</title>
+<title>8 Ball Pool – Nowa Gra</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
     body {
         margin: 0;
         background: #0f1113;
         color: white;
         font-family: Arial;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+        overflow: hidden;
     }
 
+    /* MENU START */
     #startMenu {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.8);
+        background: rgba(0,0,0,0.85);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         transition: 0.5s;
+        z-index: 10;
     }
 
     #startBtn {
@@ -36,35 +37,92 @@
         color: white;
     }
 
-    #game {
-        display: none;
-        font-size: 40px;
+    /* CANVAS WRAPPER */
+    #gameArea {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    canvas {
+        background: #0b5f2a;
+        border-radius: 12px;
+        max-width: 100%;
+        max-height: 100%;
     }
 </style>
 </head>
+
 <body>
 
+<!-- MENU START -->
 <div id="startMenu">
     <h1>8 Ball Pool</h1>
     <button id="startBtn">Start</button>
 </div>
 
-<div id="game">
-    🎱 Gra wystartowała!
+<!-- GRA -->
+<div id="gameArea">
+    <canvas id="table" width="1000" height="520"></canvas>
 </div>
 
 <script>
-    const startBtn = document.getElementById("startBtn");
-    const startMenu = document.getElementById("startMenu");
-    const game = document.getElementById("game");
+/* ======== START BUTTON ======== */
+const startBtn = document.getElementById("startBtn");
+const startMenu = document.getElementById("startMenu");
 
-    startBtn.addEventListener("click", () => {
-        startMenu.style.opacity = "0";
-        setTimeout(() => {
-            startMenu.style.display = "none";
-            game.style.display = "block";
-        }, 500);
-    });
+startBtn.addEventListener("click", () => {
+    startMenu.style.opacity = "0";
+    setTimeout(() => startMenu.style.display = "none", 500);
+});
+
+/* ======== RYSOWANIE STOŁU ======== */
+const canvas = document.getElementById("table");
+const ctx = canvas.getContext("2d");
+
+function drawTable() {
+    const W = canvas.width;
+    const H = canvas.height;
+    const cushion = 28;
+
+    // drewno
+    ctx.fillStyle = "#3e2723";
+    ctx.fillRect(0, 0, W, H);
+
+    // sukno
+    ctx.fillStyle = "#0b5f2a";
+    ctx.fillRect(cushion, cushion, W - 2*cushion, H - 2*cushion);
+
+    // banda
+    ctx.strokeStyle = "#06351a";
+    ctx.lineWidth = 8;
+    ctx.strokeRect(cushion, cushion, W - 2*cushion, H - 2*cushion);
+
+    // kieszenie
+    const pocketR = 26;
+    const pockets = [
+        {x:cushion, y:cushion},
+        {x:W/2, y:cushion},
+        {x:W-cushion, y:cushion},
+        {x:cushion, y:H-cushion},
+        {x:W/2, y:H-cushion},
+        {x:W-cushion, y:H-cushion}
+    ];
+
+    for (const p of pockets) {
+        const g = ctx.createRadialGradient(p.x-6, p.y-6, 4, p.x, p.y, pocketR);
+        g.addColorStop(0, "#222");
+        g.addColorStop(1, "#000");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, pocketR, 0, Math.PI*2);
+        ctx.fill();
+    }
+}
+
+drawTable();
 </script>
 
 </body>
